@@ -1,0 +1,2 @@
+- Need to eval arbitrary times for rigid bodies
+- Different runs may have different collisions. These need to be evaluated and saved.
