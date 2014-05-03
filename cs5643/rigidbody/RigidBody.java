@@ -270,7 +270,7 @@ public class RigidBody
 	Vector2d temp = new Vector2d();
 	
 	temp.sub(x, contactPointW);
-	torque += (temp.x*contactForceW.y) - (temp.y*contactForceW.x); 
+	torque += (contactForceW.x*temp.y) - (contactForceW.y*temp.x); 
     }
 
     /** Accumulates force/torque in world coordinates. Only affects
@@ -326,7 +326,7 @@ public class RigidBody
 
 		/// TODO: UPDATE ANGULAR POSITION/VELOCITY:
 		
-		omega += dt*torque/massLinear;
+		omega += dt*torque/massAngular;
 		theta += dt*omega;
 		
 	    }
