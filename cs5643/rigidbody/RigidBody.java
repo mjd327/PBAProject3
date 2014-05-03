@@ -322,8 +322,10 @@ public class RigidBody
 		Utils.acc(x, dt, v);
 
 		/// TODO: UPDATE ANGULAR POSITION/VELOCITY:
-		omega += 0;
-		theta += 0;
+		
+		omega += dt*torque/massLinear;
+		theta += dt*omega;
+		
 	    }
 
 	    /// UPDATE RigidTransforms:
