@@ -267,7 +267,10 @@ public class RigidBody
 	force.add(contactForceW);
 	
 	// ADD TORQUE:  TODO  ######
-	torque += 0; 
+	Vector2d temp = new Vector2d();
+	
+	temp.sub(x, contactPointW);
+	torque += (temp.x*contactForceW.y) - (temp.y*contactForceW.x); 
     }
 
     /** Accumulates force/torque in world coordinates. Only affects
