@@ -277,10 +277,10 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
 	void generatePaths(GL2 gl, double dt)
 	{		
 		Color3f displayColor = new Color3f(Color.BLUE);
-		Stochastic s = new Stochastic(gl,displayColor); 
+		Stochastic s = new Stochastic(); 
 		RBS.S.add(s); 
 		RBS.generatePaths(s,dt); 
-		s.display();
+		//s.display(gl,displayColor);
 	}
 	
 	//Generates a initial path when the program starts. 
@@ -428,7 +428,7 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     public static void main(String[] args) 
     {
 	try{
-	    String  dynamicFilename   = "images/pba3img.tga";
+	    String  dynamicFilename   = "images/seesaw.tga";
 	    if(args.length >= 1) {
 		dynamicFilename = args[0];
 	    }

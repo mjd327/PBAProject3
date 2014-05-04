@@ -12,29 +12,15 @@ public class Stochastic
      */
     public ArrayList<ArrayList<Point2d>> paths = new ArrayList<ArrayList<Point2d>>();
 
-    
-    public GL2 gl;
-    public Color3f color; 
-    
     public Stochastic()
     {
-    	
-    }
-    public Stochastic(GL2 gl, Color3f color)
-    {
-    	this.gl = gl;
-    	this.color = color; 
-    	for(int i = 0; i < Constants.NUM_PATHS; i++)
-    	{
-    		paths.add(new ArrayList<Point2d>()); 
-    	}
     	
     }
     /** 
      * Displays the object to the screen, given a color.
      * By default, draws the path as line segments.
      */
-    public void display() {
+    public void display(GL2 gl, Color3f color) {
 	gl.glColor3f(color.x, color.y, color.z);
 
 	gl.glBegin(GL2.GL_LINES);

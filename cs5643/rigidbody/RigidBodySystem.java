@@ -188,7 +188,6 @@ public class RigidBodySystem
     		collided = false; 
     		while(!collided)
     		{
-    			s.display();
     			//Advance time 
     			tempBody.advanceTime(dt);
     			s.paths.get(i).add(new Point2d(tempBody.x));
