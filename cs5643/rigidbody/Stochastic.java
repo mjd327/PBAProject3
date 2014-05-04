@@ -14,6 +14,11 @@ public class Stochastic
 
     public Stochastic()
     {
+
+    	for(int i = 0; i < Constants.NUM_PATHS; i++)
+    	{
+    		paths.add(new ArrayList<Point2d>()); 
+    	}
     	
     }
     /** 

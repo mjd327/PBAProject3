@@ -249,6 +249,14 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     				{
     					firstStep = !generateInitialPath(DT); 
     				}
+    				else
+    				{
+    					if(spaceEnabled)
+    					{
+    						spaceEnabled = false; 
+    						generatePaths(gl,DT);
+    					}
+    				}
     			}
     		}
     		else {//JUST ONE DT STEP
@@ -256,6 +264,14 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     				if(firstStep)
     				{
     					firstStep = !generateInitialPath(DT);
+    				}
+    				else
+    				{
+    					if(spaceEnabled)
+    					{
+    						spaceEnabled = false; 
+    						generatePaths(gl,DT);
+    					}
     				}
     			}
     		}
@@ -282,7 +298,7 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
 		Stochastic s = new Stochastic(); 
 		RBS.S.add(s); 
 		RBS.generatePaths(s,dt); 
-		//s.display(gl,displayColor);
+		s.display(gl,displayColor);
 	}
 	
 	//Generates a initial path when the program starts. 

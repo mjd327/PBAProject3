@@ -144,6 +144,11 @@ public class RigidBodySystem
     /** Makes a deep copy of r. */ 
     public void copyBody(RigidBody copy, RigidBody r)
     {
+    	copy.boundaryBlocks = new ArrayList<Block>(); 
+        for(Block b : r.boundaryBlocks)
+        {
+        	copy.boundaryBlocks.add(b); 
+        }
     	copy.x = r.x; 
     	copy.x0 = r.x0; 
     	copy.v = r.v; 
