@@ -12,4 +12,7 @@ public interface Constants
 
     /** Stiffness of penalty contact spring force. */
     public static final double CONTACT_STIFFNESS = 200000.;
+    
+    /** Number of paths generated for each stochastic. */ 
+    public static final int NUM_PATHS = 10; 
 }

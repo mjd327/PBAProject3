@@ -23,6 +23,9 @@ public class RigidBodySystem
     /** List of Force objects. */
     ArrayList<Force>      F = new ArrayList<Force>();
 
+    /** List of Stochastics. */
+    ArrayList<Stochastic>  S = new ArrayList<Stochastic>(); 
+    
     CollisionProcessor collisionProcessor = null;
     boolean processCollisions = true;
 
@@ -66,6 +69,19 @@ public class RigidBodySystem
 	    }
 	}
 	return pick;
+    }
+    
+    /**Gets the unpinned body. Because we are only using one body, this is always the correct one.*/
+    public RigidBody getUnpinnedBody()
+    {
+    	for(RigidBody body : bodies)
+    	{
+    		if(!body.isPinned())
+    		{
+    			return body; 
+    		}
+    	}
+    	return null; 
     }
 
     /** Adds the RigidBody to the system, and invalidates the existing
@@ -125,6 +141,151 @@ public class RigidBodySystem
 	}
     }
 
+    /** Makes a deep copy of r. */ 
+    public void copyBody(RigidBody copy, RigidBody r)
+    {
+    	copy.x = r.x; 
+    	copy.x0 = r.x0; 
+    	copy.v = r.v; 
+    	copy.force = r.force;
+    	copy.massAngular = r.massAngular; 
+    	copy.massLinear = r.massLinear; 
+    	copy.omega = r.omega; 
+    	copy.pin = r.pin; 
+    	copy.theta = r.theta; 
+    	copy.torque = r.torque; 
+    	copy.transformB2W.set(r.transformB2W); 
+    	copy.transformW2B.set(r.transformW2B) ; 
+    }
+    
+    public synchronized void generatePaths(Stochastic s, double dt) {
+    	RigidBody simBody = getUnpinnedBody(); 
+    	boolean collided; 
+    	Random r = new Random(); 
+    	double angleOffset;
+    	Vector2d originalForce = new Vector2d();
+    	Vector2d newForce = new Vector2d(); 
+    	RigidBody tempBody = new RigidBody(simBody); 
+    	add(tempBody); 
+		remove(simBody); 
+		
+    	for(int i = 0; i < Constants.NUM_PATHS; i++)
+    	{
+    		copyBody(tempBody,simBody); 
+    		
+    		//We first need to choose a random normal direction to remove us from the contact point. 
+    		angleOffset = (30 * r.nextDouble() - 15) * (Math.PI/180);
+    		originalForce.set(tempBody.force);
+    		originalForce.y += tempBody.getMass() * 10;
+
+    		tempBody.force.sub(tempBody.force,originalForce); 
+    		//Rotate force with the perturbation
+    		newForce.x = originalForce.x*Math.cos(angleOffset) - 
+    				originalForce.y*Math.sin(angleOffset); 
+    		newForce.y = 10*originalForce.x * Math.sin(angleOffset) + originalForce.y * Math.cos(angleOffset); 
+    		tempBody.force.add(newForce); 
+
+    		collided = false; 
+    		while(!collided)
+    		{
+    			s.display();
+    			//Advance time 
+    			tempBody.advanceTime(dt);
+    			s.paths.get(i).add(new Point2d(tempBody.x));
+
+    			for(Force force : F)   force.applyForce();
+    			// GRAVITY + CHEAP DAMPING:
+    			Vector2d f   = new Vector2d();//-->nonzero
+    			double   tau = 0;
+    			for(RigidBody body : bodies) {
+    				f.x = f.y = 0;
+    				double   m = body.getMass();
+    				double   I = body.getMassAngular();
+
+    				/// DAMPING:
+    				double C = 0.1;
+    				Utils.acc(f,  -C * m, body.getVelocityLinear());//linear damping
+    				tau = - C/5. * I * body.getVelocityAngular();//angular damping
+
+    				f.y -= m * 10;//gravity
+
+    				body.applyWrenchW(f, tau);
+    			}
+
+    			/// Detect Collisions
+    			{
+    				if(collisionProcessor == null) {//BUILD
+    					collisionProcessor = new CollisionProcessor(bodies);
+    				}
+    				if(processCollisions) 
+    				{
+    					collided = collisionProcessor.processCollisions();
+    					
+    				}
+    			}
+    		}
+    	}
+    }
+
+		
+	/**Used to compute the first step of the simulation. Currently it just simulates the object normally.*/ 
+    public synchronized boolean initialSimulation(double dt)
+    {
+    	boolean collided = false; 
+    	{/// Gather forces: (TODO)
+
+    	    if(jiggle) {
+    		applyJiggle();
+    		jiggle = false;
+    	    }
+
+      	    for(Force force : F)   force.applyForce();
+
+      	    // GRAVITY + CHEAP DAMPING:
+    	    Vector2d f   = new Vector2d();//-->nonzero
+    	    double   tau = 0;
+      	    for(RigidBody body : bodies) {
+    		f.x = f.y = 0;
+    		double   m = body.getMass();
+    		double   I = body.getMassAngular();
+
+    		/// DAMPING:
+    		double C = 0.1;
+    		Utils.acc(f,  -C * m, body.getVelocityLinear());//linear damping
+    		tau = - C/5. * I * body.getVelocityAngular();//angular damping
+
+    		f.y -= m * 10;//gravity
+
+    		body.applyWrenchW(f, tau);
+    	    }
+     	}
+
+    	/// RESOLVE COLLISIONS!
+    	{
+    	    if(collisionProcessor == null) {//BUILD
+    		collisionProcessor = new CollisionProcessor(bodies);
+    	    }
+    	    if(processCollisions) 
+    	    {
+    	    	collided = collisionProcessor.processCollisions();
+    	    }
+    	    if(collided)
+    	    {
+    	    	return true; 
+    	    }
+    	}
+
+    	/// "ADVANCE TIME" SHOULD BE COMBINED WITH CONTACT SOLVER ...
+    	for(RigidBody body : bodies) {
+    	    body.advanceTime(dt);
+    	}
+    	time += dt;
+
+    	return false; 
+    	}
+
+    
+    
     /**
      * Incomplete/Debugging integrator implementation. 
      * 
@@ -205,5 +366,7 @@ public class RigidBodySystem
  	    force.display(gl);
  	}
     }
+
+	 
 
 }

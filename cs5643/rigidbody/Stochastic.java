@@ -4,24 +4,45 @@ import java.util.ArrayList;
 import javax.media.opengl.GL2;
 import javax.vecmath.*;
 
-public abstract class Stochastic
+public class Stochastic
 {
     /** 
      * A list of points showing the path of the object after the impulse is applied.
      * This should be populated when this Stochastic object is constructed.
      */
-    public ArrayList<Point2d> path = new ArrayList<Point2d>();
+    public ArrayList<ArrayList<Point2d>> paths = new ArrayList<ArrayList<Point2d>>();
 
+    
+    public GL2 gl;
+    public Color3f color; 
+    
+    public Stochastic()
+    {
+    	
+    }
+    public Stochastic(GL2 gl, Color3f color)
+    {
+    	this.gl = gl;
+    	this.color = color; 
+    	for(int i = 0; i < Constants.NUM_PATHS; i++)
+    	{
+    		paths.add(new ArrayList<Point2d>()); 
+    	}
+    	
+    }
     /** 
      * Displays the object to the screen, given a color.
      * By default, draws the path as line segments.
      */
-    public void display(GL2 gl, Color3f color) {
+    public void display() {
 	gl.glColor3f(color.x, color.y, color.z);
-	
+
 	gl.glBegin(GL2.GL_LINES);
-	for (int i=0; i<path.size()-1; i++) {
-	    gl.glVertex2d(path.get(i).x, path.get(i).y);
+	for(ArrayList<Point2d> path : paths)
+	{
+		for (int i=0; i<path.size()-1; i++) {
+			gl.glVertex2d(path.get(i).x, path.get(i).y);
+		}
 	}
 	gl.glEnd();
 	
@@ -29,9 +50,12 @@ public abstract class Stochastic
 
     /** Returns true if a given point intersects the path of the Stochastic object. Useful for selecting paths. */
     public boolean intersectsPoint(Point2d p, double tolerance) {
-	for (int i=0; i<path.size()-1; i++) {
-	    if (Utils.distPointToSegment(p, path.get(i), path.get(i+1)) < tolerance) return true;
-	}
+    	for(ArrayList<Point2d> path : paths)
+    	{
+    		for (int i=0; i<path.size()-1; i++) {
+    			if (Utils.distPointToSegment(p, path.get(i), path.get(i+1)) < tolerance) return true;
+    		}
+    	}
 	return false;
     }
 

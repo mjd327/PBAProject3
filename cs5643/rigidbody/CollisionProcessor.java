@@ -33,14 +33,15 @@ public class CollisionProcessor
     /**
      * Performs broad and narrow phase collision detection, and
      * applies penalty forces at contacts.
+     * @return 
      */
-    public void processCollisions()
+    public boolean processCollisions()
     {
 	/// BROAD PHASE:
 	broadPhase();// --> updates candidateBodyPairs
 
 	/// NARROW PHASE: Detect collisions and apply forces
-	narrowPhase();
+	return narrowPhase();
     }
 
     /** Insert your implementation here of whatever broad phase test
@@ -60,21 +61,24 @@ public class CollisionProcessor
     }
 
     /** Insert your implementation of narrow phase collision detection
-     * and penalty force response here. */
-    void narrowPhase()
+     * and penalty force response here. Returns true if collision occurs anywhere.*/
+    public boolean narrowPhase()
     {
+    boolean collided = false; 
 	/// TEMPORARY: All pairs... (ha ha ha)
 	for(BodyPair pair : candidateBodyPairs) 
-	    processBodyPair(pair);
+	    collided = collided || processBodyPair(pair);
+	return collided;
     }
 
     /** Narrow phase BodyPair collision resolution. You'll want to
      * borrow ideas from this function for your narrow phase code.  */
-    void processBodyPair(BodyPair pair)
+    public boolean processBodyPair(BodyPair pair)
     {
+    boolean collided = false; 
 	int i = pair.i();
 	int j = pair.j();
-	if(i==j) return;
+	if(i==j) return false;
 
 	/// USE INTELLIGENT ALL-PAIRS TEST: 
 	/// 
@@ -108,6 +112,7 @@ public class CollisionProcessor
 
 		/// APPLY PENALTY FORCE IF IN CONTACT:
 		if(penDepth > 0) {//overlap
+			collided = true; 
 		    v.normalize();
 
 		    /// PENALTY CONTACT FORCE:
@@ -126,5 +131,6 @@ public class CollisionProcessor
 		}
 	    }
 	}
+	return collided;
     }
 }

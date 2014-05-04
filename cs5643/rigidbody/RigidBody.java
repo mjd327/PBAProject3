@@ -270,7 +270,7 @@ public class RigidBody
 	Vector2d temp = new Vector2d();
 	
 	temp.sub(x, contactPointW);
-	torque += (contactForceW.x*temp.y) - (contactForceW.y*temp.x); 
+//	torque += (contactForceW.x*temp.y) - (contactForceW.y*temp.x); 
     }
 
     /** Accumulates force/torque in world coordinates. Only affects
@@ -279,7 +279,7 @@ public class RigidBody
     {
 	//System.out.println("applyWrenchW: f="+(new Vector2f(f))+", tau="+tau);
 	force.add(f);
-	torque += tau;
+	//torque += tau;
     }
 
     /** Resets state to original values (original
@@ -326,8 +326,8 @@ public class RigidBody
 
 		/// TODO: UPDATE ANGULAR POSITION/VELOCITY:
 		
-		omega += dt*torque/massAngular;
-		theta += dt*omega;
+	//  omega += dt*torque/massAngular;
+	//	theta += dt*omega;
 		
 	    }
 
