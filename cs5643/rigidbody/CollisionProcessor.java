@@ -67,9 +67,7 @@ public class CollisionProcessor
     boolean collided = false; 
 	/// TEMPORARY: All pairs... (ha ha ha)
 	for(BodyPair pair : candidateBodyPairs) 
-	{
-	   // collided = collided || processBodyPair(pair);
-	}
+	    collided = collided || processBodyPair(pair);
 	return collided;
     }
 
