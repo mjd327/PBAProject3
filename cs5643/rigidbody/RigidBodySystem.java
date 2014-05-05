@@ -174,21 +174,21 @@ public class RigidBodySystem
     	add(tempBody); 
 		remove(simBody); 
 		
-    	for(int i = 0; i < Constants.NUM_PATHS; i++)
+    	for(int i = 0; i < 3; i++)
     	{
     		copyBody(tempBody,simBody); 
     		
     		//We first need to choose a random normal direction to remove us from the contact point. 
-    		angleOffset = (30 * r.nextDouble() - 15) * (Math.PI/180);
-    		originalForce.set(tempBody.force);
-    		originalForce.y += tempBody.getMass() * 10;
+    //		angleOffset = (2 * r.nextDouble() - 1) * (Math.PI/180);
+    //		originalForce.set(tempBody.force);
+    //		originalForce.y += tempBody.getMass() * 10;
 
-    		tempBody.force.sub(tempBody.force,originalForce); 
+   // 		tempBody.force.sub(tempBody.force,originalForce); 
     		//Rotate force with the perturbation
-    		newForce.x = originalForce.x*Math.cos(angleOffset) - 
-    				originalForce.y*Math.sin(angleOffset); 
-    		newForce.y = 10*originalForce.x * Math.sin(angleOffset) + originalForce.y * Math.cos(angleOffset); 
-    		tempBody.force.add(newForce); 
+   // 		newForce.x = originalForce.x*Math.cos(angleOffset) - 
+   // 				originalForce.y*Math.sin(angleOffset); 
+   // 		newForce.y = 10*originalForce.x * Math.sin(angleOffset) + originalForce.y * Math.cos(angleOffset); 
+   // 		tempBody.force.add(newForce); 
 
     		collided = false; 
     		while(!collided)
@@ -196,7 +196,6 @@ public class RigidBodySystem
     			//Advance time 
     			tempBody.advanceTime(dt);
     			s.paths.get(i).add(new Point2d(tempBody.x));
-
     			for(Force force : F)   force.applyForce();
     			// GRAVITY + CHEAP DAMPING:
     			Vector2d f   = new Vector2d();//-->nonzero
