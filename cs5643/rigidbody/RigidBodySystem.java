@@ -2,6 +2,7 @@ package cs5643.rigidbody;
 
 import java.awt.Color;
 import java.util.*;
+
 import javax.vecmath.*;
 import javax.media.opengl.*;
 
@@ -152,6 +153,28 @@ public class RigidBodySystem
 	}
     }
 
+
+    /** Makes a deep copy of r. */ 
+    public static void copyBody(RigidBody copy, RigidBody r)
+    {
+    	copy.boundaryBlocks = new ArrayList<Block>(); 
+        for(Block b : r.boundaryBlocks)
+        {
+        	copy.boundaryBlocks.add(b); 
+        }
+    	copy.x.set(r.x); 
+    	copy.x0.set(r.x0); 
+    	copy.v.set(r.v); 
+    	copy.force.set(r.force);
+    	copy.massAngular = r.massAngular; 
+    	copy.massLinear = r.massLinear; 
+    	copy.omega = r.omega; 
+    	copy.pin = r.pin; 
+    	copy.theta = r.theta; 
+    	copy.torque = r.torque; 
+    	copy.transformB2W.set(r.transformB2W); 
+    	copy.transformW2B.set(r.transformW2B) ; 
+    }
     
     public synchronized void generatePaths(Stochastic s, double dt) {
     	RigidBody simBody = getUnpinnedBody(); 
@@ -190,7 +213,10 @@ public class RigidBodySystem
     			//Advance time 
     			tempBody.advanceTime(dt);
     			s.paths.get(i).add(new Point2d(tempBody.x));
-    		
+    			if(s.paths.get(i).size() > 100000)
+    			{
+    				System.out.println("GAHHGAHGAHGAHGAHGAHGAHGH");
+    			}
     	
     			for(Force force : F)   force.applyForce();
     			// GRAVITY + CHEAP DAMPING:
@@ -230,7 +256,7 @@ public class RigidBodySystem
 	/**Used to compute the first step of the simulation. Currently it just simulates the object normally.*/ 
     public synchronized boolean initialSimulation(double dt)
     {
-    	originalBody = getUnpinnedBody(); 
+    
     	boolean collided = false; 
     	{/// Gather forces: (TODO)
 
@@ -279,6 +305,11 @@ public class RigidBodySystem
     	for(RigidBody body : bodies) {
     	    body.advanceTime(dt);
     	}
+    //	originalBody = new RigidBody(simBody);
+    //	copyBody(originalBody,simBody); 
+    	S.get(0).paths.get(0).add(new Point2d(getUnpinnedBody().x));
+    	S.get(0).chosenIndex = 0;
+    	//S.get(0).bodies.add();
     	time += dt;
 
     	return false; 

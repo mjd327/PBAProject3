@@ -29,33 +29,12 @@ public class Stochastic
     	for(int i = 0; i < Constants.NUM_PATHS; i++)
     	{
     		RigidBody tempBody = new RigidBody(body); 
-    		copyBody(tempBody,body); 
+    		RigidBodySystem.copyBody(tempBody,body); 
     		bodies.add(tempBody); 
     	}
     	
     }
 
-    /** Makes a deep copy of r. */ 
-    public void copyBody(RigidBody copy, RigidBody r)
-    {
-    	copy.boundaryBlocks = new ArrayList<Block>(); 
-        for(Block b : r.boundaryBlocks)
-        {
-        	copy.boundaryBlocks.add(b); 
-        }
-    	copy.x.set(r.x); 
-    	copy.x0.set(r.x0); 
-    	copy.v.set(r.v); 
-    	copy.force.set(r.force);
-    	copy.massAngular = r.massAngular; 
-    	copy.massLinear = r.massLinear; 
-    	copy.omega = r.omega; 
-    	copy.pin = r.pin; 
-    	copy.theta = r.theta; 
-    	copy.torque = r.torque; 
-    	copy.transformB2W.set(r.transformB2W); 
-    	copy.transformW2B.set(r.transformW2B) ; 
-    }
     
     /** 
      * Displays the object to the screen, given a color.
@@ -86,18 +65,20 @@ public class Stochastic
 
     	}
     }
-    
+
     public void displayChosenPath(GL2 gl)
     {
     	gl.glColor3f(highlightColor.x, highlightColor.y, highlightColor.z);
-    	
-    	ArrayList<Point2d> displayPath= paths.get(chosenIndex);
-    	
-		gl.glBegin(GL2.GL_LINES);
-		for (int i=0; i<displayPath.size()-1; i++) {
-			gl.glVertex2d(displayPath.get(i).x, displayPath.get(i).y);
-		}
-		gl.glEnd();
+    	if(chosenIndex != -1)
+    	{
+    		ArrayList<Point2d> displayPath= paths.get(chosenIndex);
+
+    		gl.glBegin(GL2.GL_LINES);
+    		for (int i=0; i<displayPath.size()-1; i++) {
+    			gl.glVertex2d(displayPath.get(i).x, displayPath.get(i).y);
+    		}
+    		gl.glEnd();
+    	}
     }
     
     

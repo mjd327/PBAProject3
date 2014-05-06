@@ -312,6 +312,14 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
 	//Generates a initial path when the program starts. 
 	boolean generateInitialPath(double dt)
 	{
+		if(RBS.S.size() == 0)
+		{
+			RigidBody b = RBS.getUnpinnedBody();
+			//Computes boundary blocks, because of strange code logic in RigidBody class
+			b.getBoundaryBlocks(); 
+			Stochastic s = new Stochastic(b); 
+			RBS.S.add(s); 
+		}
 		return RBS.initialSimulation(dt); 
 	}
 	
