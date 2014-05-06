@@ -467,7 +467,7 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     public static void main(String[] args) 
     {
 	try{
-	    String  dynamicFilename   = "images/bballgoalsmall.tga";
+	    String  dynamicFilename   = "images/test.tga";
 	    if(args.length >= 1) {
 		dynamicFilename = args[0];
 	    }
