@@ -33,6 +33,13 @@ public class RigidBodySystem
     CollisionProcessor collisionProcessor = null;
     boolean processCollisions = true;
 
+    /** Used to update the frame being drawn.*/
+    int animationIndex = 0; 
+    int curStochastic = 0; 
+    
+    //Used so we have a reference to the original body which is not stored in a stochastic
+    RigidBody originalBody;
+    
     //ArrayList<Constraint> C = new ArrayList<Constraint>();
 
     /** Basic constructor. */
@@ -183,6 +190,8 @@ public class RigidBodySystem
     			//Advance time 
     			tempBody.advanceTime(dt);
     			s.paths.get(i).add(new Point2d(tempBody.x));
+    		
+    	
     			for(Force force : F)   force.applyForce();
     			// GRAVITY + CHEAP DAMPING:
     			tau = 0;
@@ -221,6 +230,7 @@ public class RigidBodySystem
 	/**Used to compute the first step of the simulation. Currently it just simulates the object normally.*/ 
     public synchronized boolean initialSimulation(double dt)
     {
+    	originalBody = getUnpinnedBody(); 
     	boolean collided = false; 
     	{/// Gather forces: (TODO)
 
@@ -346,7 +356,7 @@ public class RigidBodySystem
     /**
      * Displays RigidBody and Force objects.
      */
-    public synchronized void display(GL2 gl) 
+    public synchronized void display(GL2 gl, boolean displayLastS) 
     {
 	for(RigidBody body : bodies) {
 	    body.display(gl);
@@ -362,10 +372,45 @@ public class RigidBodySystem
  		S.get(i).displayChosenPath(gl);
  	}
  	//Display the set of paths for most recent contact point
- 	if(S.size() != 0) S.get(S.size()-1).display(gl);
+ 	
+ 	if(S.size() != 0 && displayLastS) S.get(S.size()-1).display(gl);
  	
     }
 
+	public boolean updateAnimation() {
+		//First step
+		Stochastic s = S.get(curStochastic); 
+
+		if(curStochastic == 0 && animationIndex == 0)
+		{
+			add(s.bodies.get(s.chosenIndex));
+		}
+	//	Stochastic s = S.get(curStochastic); 
+		//add(s.bodies.get(s.chosenIndex));
+		if(animationIndex >= s.paths.get(s.chosenIndex).size())
+		{
+			curStochastic++; 
+			//We have a final stochastic here that shouldn't be used. 
+			if(curStochastic >= S.size()-1)
+			{
+				return false; 
+			}
+			else
+			{
+				//Remove old body, update stochastic, and replace with new body
+				remove(s.bodies.get(s.chosenIndex));
+				s = S.get(curStochastic);
+				add(s.bodies.get(s.chosenIndex));
+				animationIndex = 0; 
+			}
+		}
+		getUnpinnedBody().x.set(s.paths.get(s.chosenIndex).get(animationIndex));
+		animationIndex++; 
+		return true; 
+		
+	}
+
+    
 	 
 
 }
