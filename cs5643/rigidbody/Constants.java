@@ -15,4 +15,7 @@ public interface Constants
     
     /** Number of paths generated for each stochastic. */ 
     public static final int NUM_PATHS = 10; 
+    
+    /** The tolerance for how far a mouse click can be from a path */ 
+    public static final double MOUSE_TOLERANCE = .01;
 }

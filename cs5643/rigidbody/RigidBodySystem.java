@@ -1,5 +1,6 @@
 package cs5643.rigidbody;
 
+import java.awt.Color;
 import java.util.*;
 import javax.vecmath.*;
 import javax.media.opengl.*;
@@ -25,6 +26,9 @@ public class RigidBodySystem
 
     /** List of Stochastics. */
     ArrayList<Stochastic>  S = new ArrayList<Stochastic>(); 
+    
+    /** List of path indices. */
+    ArrayList<Integer> chosenPaths = new ArrayList<Integer>(); 
     
     CollisionProcessor collisionProcessor = null;
     boolean processCollisions = true;
@@ -141,27 +145,6 @@ public class RigidBodySystem
 	}
     }
 
-    /** Makes a deep copy of r. */ 
-    public void copyBody(RigidBody copy, RigidBody r)
-    {
-    	copy.boundaryBlocks = new ArrayList<Block>(); 
-        for(Block b : r.boundaryBlocks)
-        {
-        	copy.boundaryBlocks.add(b); 
-        }
-    	copy.x = r.x; 
-    	copy.x0 = r.x0; 
-    	copy.v = r.v; 
-    	copy.force = r.force;
-    	copy.massAngular = r.massAngular; 
-    	copy.massLinear = r.massLinear; 
-    	copy.omega = r.omega; 
-    	copy.pin = r.pin; 
-    	copy.theta = r.theta; 
-    	copy.torque = r.torque; 
-    	copy.transformB2W.set(r.transformB2W); 
-    	copy.transformW2B.set(r.transformW2B) ; 
-    }
     
     public synchronized void generatePaths(Stochastic s, double dt) {
     	RigidBody simBody = getUnpinnedBody(); 
@@ -170,25 +153,29 @@ public class RigidBodySystem
     	double angleOffset;
     	Vector2d originalForce = new Vector2d();
     	Vector2d newForce = new Vector2d(); 
-    	RigidBody tempBody = new RigidBody(simBody); 
-    	add(tempBody); 
+    	RigidBody tempBody; 
 		remove(simBody); 
 		
-    	for(int i = 0; i < 3; i++)
+		//variables used for loops
+		double tau, m, I, C; 
+		Vector2d f = new Vector2d(); 
+    	for(int i = 0; i < Constants.NUM_PATHS; i++)
     	{
-    		copyBody(tempBody,simBody); 
-    		
-    		//We first need to choose a random normal direction to remove us from the contact point. 
-    //		angleOffset = (2 * r.nextDouble() - 1) * (Math.PI/180);
-    //		originalForce.set(tempBody.force);
-    //		originalForce.y += tempBody.getMass() * 10;
+    		tempBody = s.bodies.get(i); 
+    		add(tempBody); 
 
-   // 		tempBody.force.sub(tempBody.force,originalForce); 
+    		//We first need to choose a random normal direction to remove us from the contact point. 
+    		angleOffset = (30 * r.nextDouble() - 15) * (Math.PI/180);
+    		originalForce.set(tempBody.force);
+    		
+    		originalForce.y += tempBody.getMass() * 10;
+
+    		tempBody.force.sub(tempBody.force,originalForce); 
     		//Rotate force with the perturbation
-   // 		newForce.x = originalForce.x*Math.cos(angleOffset) - 
-   // 				originalForce.y*Math.sin(angleOffset); 
-   // 		newForce.y = 10*originalForce.x * Math.sin(angleOffset) + originalForce.y * Math.cos(angleOffset); 
-   // 		tempBody.force.add(newForce); 
+    		newForce.x = originalForce.x*Math.cos(angleOffset) - 
+    				originalForce.y*Math.sin(angleOffset); 
+    		newForce.y = 10*originalForce.x * Math.sin(angleOffset) + originalForce.y * Math.cos(angleOffset); 
+    		tempBody.force.add(newForce); 
 
     		collided = false; 
     		while(!collided)
@@ -198,15 +185,14 @@ public class RigidBodySystem
     			s.paths.get(i).add(new Point2d(tempBody.x));
     			for(Force force : F)   force.applyForce();
     			// GRAVITY + CHEAP DAMPING:
-    			Vector2d f   = new Vector2d();//-->nonzero
-    			double   tau = 0;
+    			tau = 0;
     			for(RigidBody body : bodies) {
     				f.x = f.y = 0;
-    				double   m = body.getMass();
-    				double   I = body.getMassAngular();
+    				m = body.getMass();
+    				I = body.getMassAngular();
 
     				/// DAMPING:
-    				double C = 0.1;
+    				C = 0.1;
     				Utils.acc(f,  -C * m, body.getVelocityLinear());//linear damping
     				tau = - C/5. * I * body.getVelocityAngular();//angular damping
 
@@ -227,6 +213,7 @@ public class RigidBodySystem
     				}
     			}
     		}
+    		remove(tempBody); 
     	}
     }
 
@@ -368,6 +355,15 @@ public class RigidBodySystem
  	for(Force force : F) {
  	    force.display(gl);
  	}
+
+ 	for(int i = 0; i < S.size()-1; i++)
+ 	{
+ 		//Display previous paths.
+ 		S.get(i).displayChosenPath(gl);
+ 	}
+ 	//Display the set of paths for most recent contact point
+ 	if(S.size() != 0) S.get(S.size()-1).display(gl);
+ 	
     }
 
 	 

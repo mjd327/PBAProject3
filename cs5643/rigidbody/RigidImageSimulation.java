@@ -46,8 +46,9 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     RigidBodySystem RBS;
 
     /** Toggle to advance simulation. */
-    boolean simulate      = false;
-
+    boolean generating      = false;
+    boolean choosing        = false; 
+    
     /** Draws wireframe if true, and pixel blocks if false. */
     boolean drawWireframe = false;
 
@@ -57,9 +58,6 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     /** If true, instead of one step per frame, simulator takes
      * N_STEPS_PER_FRAME. */
     boolean largeStep     = true;
-
-    /// FIXME
-    Impulse testImp = new Impulse(null);
 
 
     //Booleans to control user interaction. 
@@ -217,7 +215,7 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
 
 	{/// DRAW COMPUTATIONAL CELL BOUNDARY:
 	    gl.glBegin(GL2.GL_LINE_STRIP);
-	    if(simulate)
+	    if(generating)
 		gl.glColor4f(0,0,0,1);
 	    else 
 		gl.glColor4f(1,0,0,1);
@@ -230,8 +228,6 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
 
 	simulateAndDisplayScene(gl);/// <<<-- MAIN CALL
 
-	/// FIXME
-	testImp.display(gl, new Color3f(1, 0, 0));
 
 	if(frameExporter != null)  frameExporter.writeFrame(gl);
     }
@@ -240,41 +236,35 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
      * adornments. */
     void simulateAndDisplayScene(GL2 gl)
     {
-    	if(simulate) {/// TAKE DT step sizes... take N_STEPS_PER_FRAME if largeStep==true
-    		if(largeStep)
+    	if(generating) {/// TAKE DT step sizes... take N_STEPS_PER_FRAME if largeStep==true
+    		if(firstStep)
     		{
-    			for(int k = 0; k < N_STEPS_PER_FRAME; k++)
+    			if(largeStep)
     			{
-    				if(firstStep)
+    				for(int k = 0; k < N_STEPS_PER_FRAME; k++)
     				{
     					firstStep = !generateInitialPath(DT); 
     				}
-    				else
-    				{
-    					if(spaceEnabled)
-    					{
-    						spaceEnabled = false; 
-    						generatePaths(gl,DT);
-    					}
-    				}
     			}
+    			else
+    			{
+    				firstStep = !generateInitialPath(DT);
+    			}
+
     		}
     		else {//JUST ONE DT STEP
+    			if(spaceEnabled)
     			{
-    				if(firstStep)
-    				{
-    					firstStep = !generateInitialPath(DT);
-    				}
-    				else
-    				{
-    					if(spaceEnabled)
-    					{
-    						spaceEnabled = false; 
-    						generatePaths(gl,DT);
-    					}
-    				}
+    				spaceEnabled = true; 
+    				generatePaths(gl,DT);
+    				generating = false;
+    				choosing = true; 
     			}
     		}
+    	}
+    	if(choosing)
+    	{
+    		
     	}
 
     	// Draw particles, springs, etc.
@@ -294,11 +284,10 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
 	//Calculate a new set of paths, and then display them. 
 	void generatePaths(GL2 gl, double dt)
 	{		
-		Color3f displayColor = new Color3f(Color.BLUE);
-		Stochastic s = new Stochastic(); 
+		RigidBody b = RBS.getUnpinnedBody(); 
+		Stochastic s = new Stochastic(b); 
 		RBS.S.add(s); 
 		RBS.generatePaths(s,dt); 
-	//	s.display(gl,displayColor);
 	}
 	
 	//Generates a initial path when the program starts. 
@@ -321,17 +310,21 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     public void mousePressed (MouseEvent e) 
     { 
 	RBS.removeForce(mouseForce);//in case stale
-
-	/// FIND A/CLOSEST BODY:
-	Point2d   p    = getPoint2d(e);
-	RigidBody body = RBS.pickBody(p);
-	if(body != null)  {
-	    //System.out.println("MOUSE FORCE...");
-	    mouseForce = new SpringForcePoint2Body(body, p, RBS);
-	    RBS.addForce(mouseForce);
+	if(choosing)
+	{
+		/// FIND A/CLOSEST BODY:
+		Point2d   p    = getPoint2d(e);
+		//Get the most recent stochastic and finds if the point intersects any paths 
+		Stochastic recentS = RBS.S.get(RBS.S.size()-1); 
+		int pathIndex = recentS.intersectsPath(p, Constants.MOUSE_TOLERANCE);
+		if(pathIndex != -1)  {
+			RigidBody b = recentS.bodies.get(pathIndex); 
+			RBS.add(b); 
+			recentS.chosenIndex = pathIndex; 
+			choosing = false; 
+		}
 	}
 
-	if (testImp.intersectsPoint(p, 0.01)) System.out.println("hey");
     }
     public void mouseReleased(MouseEvent e) { 
 	if(mouseForce != null) 	RBS.removeForce(mouseForce);
@@ -360,15 +353,15 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     {
 	//System.out.println("CHAR="+key+", keyCode="+e.getKeyCode()+", e="+e);
 	if(key == ' ') {//SPACEBAR --> TOGGLE SIMULATE
-	    simulate = !simulate;
-	    if(simulate) 
-		System.out.println("GO!");
-	    else
-		System.out.println("STOP!");
+		if(!choosing)
+		{
+			generating = true; 
+		}
 	}
 	else if (key == 'r') {//RESET
 	    System.out.println("RESET!");
-	    simulate = false;
+	    generating = false;
+	    choosing = false; 
 	    frameExporter = null;
 	    RBS.reset();
 	}
@@ -446,7 +439,7 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     public static void main(String[] args) 
     {
 	try{
-	    String  dynamicFilename   = "images/seesaw.tga";
+	    String  dynamicFilename   = "images/test.tga";
 	    if(args.length >= 1) {
 		dynamicFilename = args[0];
 	    }

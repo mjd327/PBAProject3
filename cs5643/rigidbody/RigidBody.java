@@ -264,7 +264,7 @@ public class RigidBody
      */
     public void applyContactForceW(Point2d contactPointW, Vector2d contactForceW)
     {
-	force.add(new Vector2d(contactForceW.x * 4, contactForceW.y*4));
+	force.add(new Vector2d(contactForceW.x * 30, contactForceW.y*30));
 	
 	// ADD TORQUE:  TODO  ######
 	Vector2d temp = new Vector2d();
