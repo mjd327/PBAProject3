@@ -322,6 +322,9 @@ public class RigidBody
 	    {/// SYMPLECTIC EULER
 		/// UPDATE LINEAR POSITION/VELOCITY:
 		Utils.acc(v,  dt/massLinear, force);// v' = v + dt*f/m
+		//System.out.println(v.length());
+
+		v.scale(Math.min(v.length(), 3)/v.length());
 		Utils.acc(x, dt, v);
 
 		/// TODO: UPDATE ANGULAR POSITION/VELOCITY:
