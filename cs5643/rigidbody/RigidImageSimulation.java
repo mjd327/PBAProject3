@@ -48,6 +48,7 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     /** Toggle to advance simulation. */
     boolean generating      = false;
     boolean choosing        = false; 
+    boolean animating       = false; 
     
     /** Draws wireframe if true, and pixel blocks if false. */
     boolean drawWireframe = false;
@@ -59,10 +60,12 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
      * N_STEPS_PER_FRAME. */
     boolean largeStep     = true;
 
-
+    
+    
     //Booleans to control user interaction. 
     boolean firstStep = true; 
     boolean spaceEnabled = true; 
+    boolean displayFinalPaths = true; 
     /** 
      * Main constructor. Call start() to begin simulation. 
      * 
@@ -237,6 +240,7 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     void simulateAndDisplayScene(GL2 gl)
     {
     	if(generating) {/// TAKE DT step sizes... take N_STEPS_PER_FRAME if largeStep==true
+    		displayFinalPaths= true; 
     		if(firstStep)
     		{
     			if(largeStep)
@@ -262,13 +266,28 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     			}
     		}
     	}
-    	if(choosing)
+    	
+    	if(animating)
     	{
-    		
+    		displayFinalPaths = false; 
+			if(largeStep)
+			{
+				for(int k = 0; k < N_STEPS_PER_FRAME; k++)
+				{
+					animating = RBS.updateAnimation(); 
+					if(!animating)
+					{
+						break; 
+					}
+				}
+			}
+			else
+			{
+				RBS.updateAnimation(); 
+			}
     	}
-
     	// Draw particles, springs, etc.
-    	RBS.display(gl);
+    	RBS.display(gl,displayFinalPaths);
 
     	if(drawBounds) {
     		for(RigidBody body : RBS.getRigidBodies()) {
@@ -356,6 +375,15 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
 		if(!choosing)
 		{
 			generating = true; 
+		}
+	}
+	else if (key == 'a')
+	{
+		if(choosing)
+		{
+			choosing = false; 
+			animating = true; 
+			
 		}
 	}
 	else if (key == 'r') {//RESET
