@@ -426,8 +426,6 @@ public class RigidBodySystem
 		{
 			add(s.bodies.get(s.chosenIndex));
 		}
-	//	Stochastic s = S.get(curStochastic); 
-		//add(s.bodies.get(s.chosenIndex));
 		if(animationIndex >= s.paths.get(s.chosenIndex).size())
 		{
 			curStochastic++; 
