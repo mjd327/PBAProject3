@@ -212,7 +212,6 @@ public class CollisionProcessor
 
 				b.body.applyContactForceW(pjW, v);
 				v.negate();
-				System.out.println(v.x + ", " + v.y);
 				unpinnedBody.applyContactForceW(piW, v);
 
 			}
