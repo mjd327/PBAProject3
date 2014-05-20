@@ -412,10 +412,26 @@ public class RigidBody
 			/// UPDATE RigidTransforms:
 			updateRigidTransforms();
 			//TODO updateAABB();
-		}
 
-		/// RESET FORCE/TORQUE ACCUMULATORS:
-		force.x = force.y = torque = 0;
+
+			/// RESET FORCE/TORQUE ACCUMULATORS:
+			force.x = force.y = torque = 0;
+
+			minBound = new Point2d(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+			maxBound = new Point2d(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
+			Point2d blockPos = new Point2d();
+			for(Block b : B)
+			{
+				blockPos.set(b.p());
+				transformB2W(blockPos);
+
+				if (blockPos.x < minBound.x) minBound.x = blockPos.x;
+				if (blockPos.y < minBound.y) minBound.y = blockPos.y;
+
+				if (blockPos.x > maxBound.x) maxBound.x = blockPos.x;
+				if (blockPos.y > maxBound.y) maxBound.y = blockPos.y;
+			}
+		}
 	}
 
 	public Point2d getAveragePosition() {return averagePosition;}
