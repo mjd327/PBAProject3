@@ -34,8 +34,8 @@ public class BVH
 					if (unpinnedBody.intersectsBlock(b))
 						if(!ir.candidateBlocks.contains(b))
 							ir.candidateBlocks.add(b);
-						else
-							System.out.println("Tried to add same block to list of candidates");
+						//else
+							//System.out.println("Tried to add same block to list of candidates");
 				}
 			}
 			else
