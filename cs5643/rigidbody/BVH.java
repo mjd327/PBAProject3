@@ -88,7 +88,7 @@ public class BVH
 			if(tempLocmin.y < minB.y) minB.y = tempLocmin.y; 
 			
 			if(tempLocmax.x > maxB.x) maxB.x = tempLocmax.x; 
-			if(tempLocmax.x > maxB.y) maxB.y = tempLocmax.y; 
+			if(tempLocmax.y > maxB.y) maxB.y = tempLocmax.y; 
 			
 			//Compute sum of average positions to be used later
 			aveAveragePosition.add(tempLoc);	
@@ -178,6 +178,6 @@ public class BVH
 	
 	public void draw(GL2 gl)
 	{
-		root.draw(gl);
+		//root.draw(gl, 0);
 	}
 }

@@ -45,7 +45,7 @@ public class BVHNode {
 			&& body.getMinBound().y <= maxBound.y && body.getMaxBound().y >= minBound.y;
 	}
 	
-	public void draw(GL2 gl)
+	public void draw(GL2 gl, int layerLevel)
 	{
 		if (isLeaf())
 		{
@@ -60,9 +60,9 @@ public class BVHNode {
 		}
 		
 		if (child[0] != null)
-			child[0].draw(gl);
+			child[0].draw(gl, layerLevel+1);
 		if (child[1] != null)
-			child[1].draw(gl);
+			child[1].draw(gl, layerLevel+1);
 	}
 
 }

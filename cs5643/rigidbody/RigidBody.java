@@ -127,23 +127,23 @@ public class RigidBody
 
 		/////////////////////////////////////////////////////////
 		/// COMPUTE AVERAGE POSITION, AND MIN/MAX BOUNDS
-		minBound = new Point2d(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
-		maxBound = new Point2d(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
-		Point2d blockPos = new Point2d();
-		averagePosition = new Point2d();
+		minBound.set(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+		maxBound.set(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
+		Point2d blockPosMin = new Point2d();
+		Point2d blockPosMax = new Point2d();
 		for(Block b : B)
 		{
-			blockPos.set(b.p());
-			transformB2W(blockPos);
-			averagePosition.add(blockPos);
-			
-			if (blockPos.x < minBound.x) minBound.x = blockPos.x;
-			if (blockPos.y < minBound.y) minBound.y = blockPos.y;
-			
-			if (blockPos.x > maxBound.x) maxBound.x = blockPos.x;
-			if (blockPos.y > maxBound.y) maxBound.y = blockPos.y;
+			blockPosMin.set(b.p.x - b.h, b.p.y - b.h);
+			blockPosMax.set(b.p.x + b.h, b.p.y + b.h);
+			transformB2W(blockPosMin);
+			transformB2W(blockPosMax);
+
+			if (blockPosMin.x < minBound.x) minBound.x = blockPosMin.x;
+			if (blockPosMin.y < minBound.y) minBound.y = blockPosMin.y;
+
+			if (blockPosMax.x > maxBound.x) maxBound.x = blockPosMax.x;
+			if (blockPosMax.y > maxBound.y) maxBound.y = blockPosMax.y;
 		}
-		averagePosition.scale(1/B.size());
 		//////////////////////////////////////////////////////////
 	}
 
@@ -374,20 +374,24 @@ public class RigidBody
 
 		/// UPDATE transformB2W & transformW2B & AABB:
 		updateRigidTransforms();
+
 		
 		minBound.set(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
 		maxBound.set(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
-		Point2d blockPos = new Point2d();
+		Point2d blockPosMin = new Point2d();
+		Point2d blockPosMax = new Point2d();
 		for(Block b : B)
 		{
-			blockPos.set(b.p());
-			transformB2W(blockPos);
+			blockPosMin.set(b.p.x - b.h, b.p.y - b.h);
+			blockPosMax.set(b.p.x + b.h, b.p.y + b.h);
+			transformB2W(blockPosMin);
+			transformB2W(blockPosMin);
 
-			if (blockPos.x < minBound.x) minBound.x = blockPos.x;
-			if (blockPos.y < minBound.y) minBound.y = blockPos.y;
+			if (blockPosMin.x < minBound.x) minBound.x = blockPosMin.x;
+			if (blockPosMin.y < minBound.y) minBound.y = blockPosMin.y;
 
-			if (blockPos.x > maxBound.x) maxBound.x = blockPos.x;
-			if (blockPos.y > maxBound.y) maxBound.y = blockPos.y;
+			if (blockPosMax.x > maxBound.x) maxBound.x = blockPosMax.x;
+			if (blockPosMax.y > maxBound.y) maxBound.y = blockPosMax.y;
 		}
 	}
 
@@ -437,17 +441,20 @@ public class RigidBody
 
 			minBound.set(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
 			maxBound.set(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
-			Point2d blockPos = new Point2d();
+			Point2d blockPosMin = new Point2d();
+			Point2d blockPosMax = new Point2d();
 			for(Block b : B)
 			{
-				blockPos.set(b.p());
-				transformB2W(blockPos);
+				blockPosMin.set(b.p.x - b.h, b.p.y - b.h);
+				blockPosMax.set(b.p.x + b.h, b.p.y + b.h);
+				transformB2W(blockPosMin);
+				transformB2W(blockPosMax);
 
-				if (blockPos.x < minBound.x) minBound.x = blockPos.x;
-				if (blockPos.y < minBound.y) minBound.y = blockPos.y;
+				if (blockPosMin.x < minBound.x) minBound.x = blockPosMin.x;
+				if (blockPosMin.y < minBound.y) minBound.y = blockPosMin.y;
 
-				if (blockPos.x > maxBound.x) maxBound.x = blockPos.x;
-				if (blockPos.y > maxBound.y) maxBound.y = blockPos.y;
+				if (blockPosMax.x > maxBound.x) maxBound.x = blockPosMax.x;
+				if (blockPosMax.y > maxBound.y) maxBound.y = blockPosMax.y;
 			}
 		}
 	}
