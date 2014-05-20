@@ -207,8 +207,7 @@ public class RigidBodySystem
     		//We first need to choose a random normal direction to remove us from the contact point. 
     		if(!restrictPaths || sb == null || minOffset == Double.MIN_VALUE) 
     		{
-    			//angleOffset = (30 * r.nextDouble() - 15) * (Math.PI/180);
-    			angleOffset = (30*(i/10.0)-15)*(Math.PI/180.0);
+    			angleOffset = (30 * r.nextDouble() - 15) * (Math.PI/180);
     		}
     		else
     		{
