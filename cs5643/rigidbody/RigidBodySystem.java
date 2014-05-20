@@ -24,6 +24,9 @@ public class RigidBodySystem
 
     /** List of Force objects. */
     ArrayList<Force>      F = new ArrayList<Force>();
+    
+    /** Bounding Volume Hierarchy */
+    BVH bvh = null;
 
     /** List of Stochastics. */
     ArrayList<Stochastic>  S = new ArrayList<Stochastic>(); 
@@ -239,7 +242,7 @@ public class RigidBodySystem
     			/// Detect Collisions
     			{
     				if(collisionProcessor == null) {//BUILD
-    					collisionProcessor = new CollisionProcessor(bodies);
+    					collisionProcessor = new CollisionProcessor(bodies, bvh);
     				}
     				if(processCollisions) 
     				{
@@ -256,7 +259,31 @@ public class RigidBodySystem
 	/**Used to compute the first step of the simulation. Currently it just simulates the object normally.*/ 
     public synchronized boolean initialSimulation(double dt)
     {
-    
+    	if (bvh == null)
+    	{
+    		int blockArraySize = 0;
+    		int i, k;
+    		for(RigidBody b: bodies)
+    		{
+    			blockArraySize += b.getNBoundaryBlocks();
+    		}
+    		
+    		Block[] blocks = new Block[blockArraySize];
+    		i = 0;
+    		Collection<Block> temp;
+    		for(RigidBody body: bodies)
+    		{
+    			temp = body.getBoundaryBlocks();
+    			for(Block b: temp)
+    			{
+    				blocks[i] = b;
+    				i++;
+    			}
+    		}    		
+    		bvh = new BVH();
+    		bvh.build(blocks);
+    	}
+    	
     	boolean collided = false; 
     	{/// Gather forces: (TODO)
 
@@ -289,7 +316,7 @@ public class RigidBodySystem
     	/// RESOLVE COLLISIONS!
     	{
     	    if(collisionProcessor == null) {//BUILD
-    		collisionProcessor = new CollisionProcessor(bodies);
+    		collisionProcessor = new CollisionProcessor(bodies, bvh);
     	    }
     	    if(processCollisions) 
     	    {
@@ -358,7 +385,7 @@ public class RigidBodySystem
 	/// RESOLVE COLLISIONS!
 	{
 	    if(collisionProcessor == null) {//BUILD
-		collisionProcessor = new CollisionProcessor(bodies);
+		collisionProcessor = new CollisionProcessor(bodies, bvh);
 	    }
 	    if(processCollisions) collisionProcessor.processCollisions();
 	}

@@ -62,8 +62,18 @@ public class ImageBlocker
      * of Blocks, and adds each to the RigidBodySystem. */
     public void addComponentRigidBodies(RigidBodySystem R) 
     {
-	for(HashSet<Block> cc : components) 
-	    R.add( new RigidBody(cc) );
+    	RigidBody temp;
+    	for(HashSet<Block> cc : components) 
+    	{
+    		temp = new RigidBody(cc);
+    		
+    		for(Block b: cc)
+    		{
+    			b.body = temp;
+    		}
+    		R.add(temp);
+    		
+    	}
     }
 
     private void findConnectedComponents()
