@@ -178,8 +178,10 @@ public class RigidBodySystem
     	copy.transformB2W.set(r.transformB2W); 
     	copy.transformW2B.set(r.transformW2B) ; 
     }
-    
-    public synchronized void generatePaths(Stochastic s, double dt) {
+    /**Generates paths for a passed in stochastic. Takes double arguments for when paths must be restricted. In this case,
+     * because the stochastic is being replaced, it needs the values from the old one 
+     */
+    public synchronized void generatePaths(Stochastic s, double dt, boolean restrictPaths,double minOffset, double maxOffset) {
     	RigidBody simBody = getUnpinnedBody(); 
     	boolean collided; 
     	Random r = new Random(); 
@@ -198,7 +200,21 @@ public class RigidBodySystem
     		add(tempBody); 
 
     		//We first need to choose a random normal direction to remove us from the contact point. 
-    		angleOffset = (30 * r.nextDouble() - 15) * (Math.PI/180);
+    		if(!restrictPaths || sb == null || minOffset == Double.MIN_VALUE) 
+    		{
+    			//angleOffset = (30 * r.nextDouble() - 15) * (Math.PI/180);
+    			angleOffset = (30*(i/10.0)-15)*(Math.PI/180.0);
+    		}
+    		else
+    		{
+    			//In this case you want to restrict it so that it evenly generates points between the two given offsets. 
+    			double angleDifference = maxOffset - minOffset;   
+    			double startPoint = (maxOffset + minOffset) / 2.0;   
+    			angleOffset = (angleDifference * r.nextDouble() - (angleDifference/2.0) + startPoint);
+    			angleOffset = angleOffset * (Math.PI/180.0); 
+    			
+    		}
+    		s.angleOffsets.add(angleOffset); 
     		originalForce.set(tempBody.force);
     		
     		originalForce.y += tempBody.getMass() * 10;
@@ -216,11 +232,7 @@ public class RigidBodySystem
     			//Advance time 
     			tempBody.advanceTime(dt);
     			s.paths.get(i).add(new Point2d(tempBody.x));
-    			if(s.paths.get(i).size() > 100000)
-    			{
-    				System.out.println("GAHHGAHGAHGAHGAHGAHGAHGH");
-    			}
-    	
+    			
     			for(Force force : F)   force.applyForce();
     			// GRAVITY + CHEAP DAMPING:
     			tau = 0;
@@ -416,7 +428,19 @@ public class RigidBodySystem
     /**Called when you want to eliminate all paths outside of the selection box.*/
     public void eliminatePaths()
     {
-    	S.get(S.size()-1).eliminatePaths(sb);
+    	Stochastic prevS = S.get(S.size()-1);
+    	int prevIndex = prevS.chosenIndex;
+    	RigidBody lastBody = null;
+    	if(prevIndex != -1)
+    	{
+    		//Dont forget to handle case where you eliminate the chosen path. 
+    		lastBody = prevS.bodies.get(prevS.chosenIndex); 
+    	}
+    	prevS.eliminatePaths(sb);
+    	if (prevIndex != -1 && prevS.chosenIndex == -1)
+    	{
+    		remove(lastBody);
+    	}
     }
 	public boolean updateAnimation() {
 		//First step

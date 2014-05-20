@@ -66,7 +66,13 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     //Booleans to control user interaction. 
     boolean firstStep = true; 
     boolean spaceEnabled = true; 
-    boolean displayFinalPaths = true; 
+    boolean displayFinalPaths = true;
+    
+    /**States whether you will be restricting the paths to the current selection box, and stores values about them.*/ 
+    boolean restrictPaths = false; 
+    double minBound = 0; 
+    double maxBound = 0; 
+
     /** 
      * Main constructor. Call start() to begin simulation. 
      * 
@@ -308,7 +314,9 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
 		RigidBody b = RBS.getUnpinnedBody(); 
 		Stochastic s = new Stochastic(b); 
 		RBS.S.add(s); 
-		RBS.generatePaths(s,dt); 
+		RBS.generatePaths(s,dt,restrictPaths,minBound,maxBound); 
+		RBS.sb = null; 
+
 	}
 	
 	//Generates a initial path when the program starts. 
@@ -383,6 +391,7 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
       			recentS.chosenIndex = pathIndex; 
     			}
     		}
+    		else RBS.sb = null; 
     	}
     }
 
@@ -411,21 +420,27 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     public void dispatchKey(char key, KeyEvent e)
     {
 	//System.out.println("CHAR="+key+", keyCode="+e.getKeyCode()+", e="+e);
-	if(key == ' ') {//SPACEBAR --> TOGGLE SIMULATE
+	if(key == ' ' || key == 'g') {//SPACEBAR --> TOGGLE SIMULATE
 		if(choosing)
 		{
 			if(!generating)
 			{
-				RBS.sb = null; 
 				Stochastic prior = RBS.S.get(RBS.S.size()-1);
 
-				if(prior.chosenIndex == -1)
+				if(prior.chosenIndex == -1 || key == 'g')
 				{
+					minBound = prior.returnMinOffset() * (180.0/Math.PI);
+					maxBound = prior.returnMaxOffset() * (180.0/Math.PI); 
+					if(minBound != maxBound)
+					{
+						System.out.println("problem"); 
+					}
 					//Not yet chosen, regenerate
 					RBS.S.remove(RBS.S.size()-1); 
 					prior = RBS.S.get(RBS.S.size()-1);
 					RBS.add(prior.bodies.get(prior.chosenIndex));
 				}
+				restrictPaths = (key == 'g'); 
 			}
 		}
 		generating = true; 
