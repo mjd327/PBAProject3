@@ -33,7 +33,11 @@ public class BVH
 				{
 					if (unpinnedBody.intersectsBlock(b))
 						if(!ir.candidateBlocks.contains(b))
+						{
+							//System.out.println("candidate block added");
+							//b.highlighted = true;
 							ir.candidateBlocks.add(b);
+						}
 						//else
 							//System.out.println("Tried to add same block to list of candidates");
 				}

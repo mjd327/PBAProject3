@@ -278,11 +278,11 @@ public class RigidBodySystem
 	/**Used to compute the first step of the simulation. Currently it just simulates the object normally.*/ 
     public synchronized boolean initialSimulation(double dt)
     {
-    	/*
+    	
     	if (bvh == null)
     	{
     		int blockArraySize = 0;
-    		int i, k;
+    		int i;
     		for(RigidBody b: bodies)
     		{
     			blockArraySize += b.getNBoundaryBlocks();
@@ -303,7 +303,7 @@ public class RigidBodySystem
     		bvh = new BVH();
     		bvh.build(blocks);
     	}
-    	*/
+    	/*
     	if (bvh == null)
     	{
     		int blockArraySize = 0;
@@ -332,7 +332,7 @@ public class RigidBodySystem
     		bvh = new BVH();
     		bvh.build(blocks);
     	}
-    	
+    	*/
     	
     	boolean collided = false; 
     	{/// Gather forces: (TODO)

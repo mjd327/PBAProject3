@@ -14,7 +14,7 @@ public interface Constants
     public static final double CONTACT_STIFFNESS = 200000.;
     
     /** Number of paths generated for each stochastic. */ 
-    public static final int NUM_PATHS = 50; 
+    public static final int NUM_PATHS = 5; 
     
     /** The tolerance for how far a mouse click can be from a path */ 
     public static final double MOUSE_TOLERANCE = .01;
