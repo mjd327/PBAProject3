@@ -2,6 +2,8 @@ package cs5643.rigidbody;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Iterator;
+
 import javax.media.opengl.GL2;
 import javax.vecmath.*;
 
@@ -81,7 +83,30 @@ public class Stochastic
     	}
     }
     
-    
+    public void eliminatePaths(SelectionBox sb)
+    {
+    	Iterator<ArrayList<Point2d>> Piter = paths.iterator();
+    	Iterator<RigidBody> RBiter = bodies.iterator();
+    	boolean boxIntersected; 
+    	while (Piter.hasNext()) {
+    	    ArrayList<Point2d> path = Piter.next();
+    	    RBiter.next();
+    	    boxIntersected = false; 
+    	    for(Point2d p : path)
+    	    {
+    	    	if(sb.pointWithinBox(p))
+    	    	{
+    	    		boxIntersected = true;
+    	    		break;
+    	    	}
+    	    }
+    	    if(!boxIntersected)
+    	    {
+    	    	Piter.remove();
+    	    	RBiter.remove(); 
+    	    }
+    	}
+    }
 
     /** Returns true if a given point intersects the path of the Stochastic object. Useful for selecting paths. */
     public int intersectsPath(Point2d p, double tolerance) {
@@ -94,4 +119,5 @@ public class Stochastic
 	return -1;
     }
 
+    
 }

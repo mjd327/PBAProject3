@@ -60,7 +60,8 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
      * N_STEPS_PER_FRAME. */
     boolean largeStep     = true;
 
-    
+    /**Always store the mouse clicks, it may come in handy for selection.*/
+    Point2d mouseStart = new Point2d(); 
     
     //Booleans to control user interaction. 
     boolean firstStep = true; 
@@ -259,8 +260,9 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     		else {//JUST ONE DT STEP
     			if(spaceEnabled)
     			{
-    				spaceEnabled = true; 
+    				spaceEnabled = false; 
     				generatePaths(gl,DT);
+    				spaceEnabled = true; 
     				generating = false;
     				choosing = true; 
     			}
@@ -336,39 +338,69 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     public void mouseExited  (MouseEvent e) { }
     public void mousePressed (MouseEvent e) 
     { 
-	RBS.removeForce(mouseForce);//in case stale
-	if(choosing)
-	{
-		/// FIND A/CLOSEST BODY:
-		Point2d   p    = getPoint2d(e);
-		//Get the most recent stochastic and finds if the point intersects any paths 
-		Stochastic recentS = RBS.S.get(RBS.S.size()-1); 
-		int pathIndex = recentS.intersectsPath(p, Constants.MOUSE_TOLERANCE);
-		if(pathIndex != -1)  {
-			RigidBody b = recentS.bodies.get(pathIndex); 
-			RBS.add(b); 
-			recentS.chosenIndex = pathIndex; 
-			choosing = false; 
-		}
-	}
+    	//Always store the click no matter what.
+    	mouseStart.set(getPoint2d(e));
+    	RBS.removeForce(mouseForce);//in case stale
+
 
     }
     public void mouseReleased(MouseEvent e) { 
-	if(mouseForce != null) 	RBS.removeForce(mouseForce);
-	mouseForce = null; 
+    	if(mouseForce != null) 	RBS.removeForce(mouseForce);
+    	mouseForce = null; 
+    	if(choosing && RBS.sb != null)
+    	{
+    		RBS.eliminatePaths(); 
+    		//RBS.sb = null; 
+    	}
     }
     public void mouseClicked (MouseEvent e) { 
-	if(mouseForce != null) 	RBS.removeForce(mouseForce);
-	mouseForce = null; 
+    	if(mouseForce != null) 	RBS.removeForce(mouseForce);
+    	mouseForce = null; 
+    	if(choosing)
+    	{
+    		/// FIND A/CLOSEST BODY:
+    		Point2d   p    = getPoint2d(e);
+    		//Get the most recent stochastic and finds if the point intersects any paths 
+    		Stochastic recentS = RBS.S.get(RBS.S.size()-1); 
+    		int pathIndex = recentS.intersectsPath(p, Constants.MOUSE_TOLERANCE);
+    		
+    		if(pathIndex != -1)  {
+    			if(recentS.chosenIndex != -1)
+        		{
+    				//You've chosen a path before, and need to remove its body
+        			RigidBody prevb = recentS.bodies.get(recentS.chosenIndex);
+        			RBS.remove(prevb); 
+        		}
+    			if(pathIndex == recentS.chosenIndex)
+    			{
+    				//You've selected current path, now deselect instead. 
+    				recentS.chosenIndex = -1;
+    			}
+    			else
+    			{
+    			RigidBody b = recentS.bodies.get(pathIndex);  
+    			RBS.add(b); 
+      			recentS.chosenIndex = pathIndex; 
+    			}
+    		}
+    	}
     }
 
     // Methods required for the implementation of MouseMotionListener
     public void mouseDragged (MouseEvent e) { 
-	if(mouseForce != null) {
-	    Point2d p = getPoint2d(e);
-	    mouseForce.updatePoint(p);
-	    //System.out.print(" U ");
-	}
+    	if(mouseForce != null) {
+    		Point2d p = getPoint2d(e);
+    		mouseForce.updatePoint(p);
+    		//System.out.print(" U ");
+    	}
+    	if(choosing)
+    	{
+    		Point2d p = getPoint2d(e);
+    		if(RBS.sb == null) RBS.sb = new SelectionBox(mouseStart,p);
+    		else RBS.sb.adjustSelectionBox(p); 
+    		
+    		
+    	}
     }
     public void mouseMoved   (MouseEvent e) { }
 
@@ -380,10 +412,24 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
     {
 	//System.out.println("CHAR="+key+", keyCode="+e.getKeyCode()+", e="+e);
 	if(key == ' ') {//SPACEBAR --> TOGGLE SIMULATE
-		if(!choosing)
+		if(choosing)
 		{
-			generating = true; 
+			if(!generating)
+			{
+				RBS.sb = null; 
+				Stochastic prior = RBS.S.get(RBS.S.size()-1);
+
+				if(prior.chosenIndex == -1)
+				{
+					//Not yet chosen, regenerate
+					RBS.S.remove(RBS.S.size()-1); 
+					prior = RBS.S.get(RBS.S.size()-1);
+					RBS.add(prior.bodies.get(prior.chosenIndex));
+				}
+			}
 		}
+		generating = true; 
+		
 	}
 	else if (key == 'a')
 	{

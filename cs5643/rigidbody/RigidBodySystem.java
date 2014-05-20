@@ -33,6 +33,9 @@ public class RigidBodySystem
     
     /** List of path indices. */
     ArrayList<Integer> chosenPaths = new ArrayList<Integer>(); 
+
+    /**There can possibly be a selection box, but only one at a time.*/
+    SelectionBox sb = null;
     
     CollisionProcessor collisionProcessor = null;
     boolean processCollisions = true;
@@ -429,12 +432,19 @@ public class RigidBodySystem
  		//Display previous paths.
  		S.get(i).displayChosenPath(gl);
  	}
+ 	//Display selection Box if not null
+ 	if(sb != null) sb.displaySelectionBox(gl); 
  	//Display the set of paths for most recent contact point
  	
  	if(S.size() != 0 && displayLastS) S.get(S.size()-1).display(gl);
  	
     }
 
+    /**Called when you want to eliminate all paths outside of the selection box.*/
+    public void eliminatePaths()
+    {
+    	S.get(S.size()-1).eliminatePaths(sb);
+    }
 	public boolean updateAnimation() {
 		//First step
 		Stochastic s = S.get(curStochastic); 
@@ -443,8 +453,6 @@ public class RigidBodySystem
 		{
 			add(s.bodies.get(s.chosenIndex));
 		}
-	//	Stochastic s = S.get(curStochastic); 
-		//add(s.bodies.get(s.chosenIndex));
 		if(animationIndex >= s.paths.get(s.chosenIndex).size())
 		{
 			curStochastic++; 
