@@ -237,7 +237,10 @@ public class RigidBodySystem
     			//Advance time 
     			tempBody.advanceTime(dt);
     			s.paths.get(i).add(new Point2d(tempBody.x));
-    			
+    			if(s.paths.get(i).size() > 10000)
+    			{
+    				break;
+    			}
     			for(Force force : F)   force.applyForce();
     			// GRAVITY + CHEAP DAMPING:
     			tau = 0;
