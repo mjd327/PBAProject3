@@ -431,10 +431,7 @@ public class RigidImageSimulation implements GLEventListener, MouseListener, Mou
 				{
 					minBound = prior.returnMinOffset() * (180.0/Math.PI);
 					maxBound = prior.returnMaxOffset() * (180.0/Math.PI); 
-					if(minBound != maxBound)
-					{
-						System.out.println("problem"); 
-					}
+					
 					//Not yet chosen, regenerate
 					RBS.S.remove(RBS.S.size()-1); 
 					prior = RBS.S.get(RBS.S.size()-1);
