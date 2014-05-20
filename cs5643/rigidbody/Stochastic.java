@@ -15,6 +15,7 @@ public class Stochastic
      */
     public ArrayList<ArrayList<Point2d>> paths = new ArrayList<ArrayList<Point2d>>();
     public ArrayList<RigidBody> bodies = new ArrayList<RigidBody>(); 
+    public ArrayList<Double> angleOffsets = new ArrayList<Double>(); 
     
     public Color3f displayColor = new Color3f(Color.RED); 
     public Color3f highlightColor = new Color3f(Color.GREEN);
@@ -87,10 +88,13 @@ public class Stochastic
     {
     	Iterator<ArrayList<Point2d>> Piter = paths.iterator();
     	Iterator<RigidBody> RBiter = bodies.iterator();
+    	Iterator<Double> AOiter = angleOffsets.iterator(); 
     	boolean boxIntersected; 
+    	int count = 0; 
     	while (Piter.hasNext()) {
     	    ArrayList<Point2d> path = Piter.next();
     	    RBiter.next();
+    	    AOiter.next(); 
     	    boxIntersected = false; 
     	    for(Point2d p : path)
     	    {
@@ -102,9 +106,12 @@ public class Stochastic
     	    }
     	    if(!boxIntersected)
     	    {
+    	    	if(count == chosenIndex) chosenIndex = -1; 
     	    	Piter.remove();
     	    	RBiter.remove(); 
+    	    	AOiter.remove(); 
     	    }
+    	    count++; 
     	}
     }
 
@@ -118,6 +125,29 @@ public class Stochastic
     	}
 	return -1;
     }
+    
+    /**Returns the minimum angle offset.*/
+    public double returnMinOffset()
+    {
+    	double min = Double.MAX_VALUE; 
+    	for(Double d : angleOffsets)
+    	{
+    		if(d<min) min = d; 
+    	}
+    	return min; 
+    }
 
+    /**Returns the maximum angle offset.*/
+    public double returnMaxOffset() {
+    	double max = -Double.MAX_VALUE; 
+    	for(Double d : angleOffsets)
+    	{
+    		if(d>max) max = d; 
+    	}
+    	return max;
+	} 
+    
+    	 
+    
     
 }
