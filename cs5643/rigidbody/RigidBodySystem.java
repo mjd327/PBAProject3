@@ -308,7 +308,8 @@ public class RigidBodySystem
     		int i, k;
     		for(RigidBody b: bodies)
     		{
-    			blockArraySize += b.getNBlocks();
+    			if(b.isPinned())
+    				blockArraySize += b.getNBlocks();
     		}
     		
     		Block[] blocks = new Block[blockArraySize];
@@ -316,11 +317,14 @@ public class RigidBodySystem
     		Collection<Block> temp;
     		for(RigidBody body: bodies)
     		{
-    			temp = body.getBlocks();
-    			for(Block b: temp)
+    			if(body.isPinned())
     			{
-    				blocks[i] = b;
-    				i++;
+	    			temp = body.getBlocks();
+	    			for(Block b: temp)
+	    			{
+	    				blocks[i] = b;
+	    				i++;
+	    			}
     			}
     		}    		
     		bvh = new BVH();
@@ -478,6 +482,8 @@ public class RigidBodySystem
  	//Display the set of paths for most recent contact point
  	
  	if(S.size() != 0 && displayLastS) S.get(S.size()-1).display(gl);
+ 	
+ 	if(bvh != null) bvh.draw(gl);
  	
     }
 

@@ -1,4 +1,7 @@
 package cs5643.rigidbody;
+import java.awt.Color;
+
+import javax.media.opengl.GL2;
 import javax.vecmath.*;
 
 /**
@@ -41,4 +44,25 @@ public class BVHNode {
 		return body.getMinBound().x <= maxBound.x && body.getMaxBound().x >= minBound.x
 			&& body.getMinBound().y <= maxBound.y && body.getMaxBound().y >= minBound.y;
 	}
+	
+	public void draw(GL2 gl)
+	{
+		if (isLeaf())
+		{
+			Color3f fillColor = new Color3f(Color.RED);
+			gl.glColor4f(fillColor.x,fillColor.y,fillColor.z,.8f);
+			gl.glBegin(GL2.GL_QUADS);
+			gl.glVertex2d(minBound.x,minBound.y);
+			gl.glVertex2d(maxBound.x,minBound.y);
+			gl.glVertex2d(maxBound.x,maxBound.y);
+			gl.glVertex2d(minBound.x,maxBound.y);
+			gl.glEnd();
+		}
+		
+		if (child[0] != null)
+			child[0].draw(gl);
+		if (child[1] != null)
+			child[1].draw(gl);
+	}
+
 }

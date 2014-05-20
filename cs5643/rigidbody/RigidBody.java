@@ -192,7 +192,6 @@ public class RigidBody
 	 * here, especially to support high-resolution picking.).  */
 	public boolean intersectsW(Point2d pointW)
 	{
-		//TODO AABB, maybe.
 		Point2d pointB = new Point2d(pointW);//sloth
 		transformW2B.transform(pointB);
 		return boundingDisk.intersects(pointB);
@@ -208,6 +207,7 @@ public class RigidBody
 		return getMinBound().x <= tempmax.x && getMaxBound().x >= tempmin.x
 				&& getMinBound().y <= tempmax.y && getMaxBound().y >= tempmin.y;
 	}
+	
 
 	/** Number of image blocks comprising this rigid body. */
 	public int getNBlocks()
@@ -282,7 +282,6 @@ public class RigidBody
 	 * text/images.). */
 	public boolean intersectsBounds(RigidBody X) 
 	{
-		//TODO AABB
 		Point2d c = new Point2d();//tmp to map X.disk.c to this body frame
 		c.set(X.boundingDisk.c);
 		X.transformB2W(c);

@@ -1,4 +1,5 @@
 package cs5643.rigidbody;
+import javax.media.opengl.GL2;
 import javax.vecmath.*;
 
 
@@ -22,7 +23,7 @@ public class BVH
 	{
 		// For a leaf node, use a normal linear search. Otherwise, search in the left and right children.
 		// Save time by checking if the ray intersects the node first before checking the children.
-		Point2d temp = new Point2d();
+		
 		if(node.intersects(unpinnedBody))
 		{
 			boolean intersected = false; 
@@ -30,11 +31,11 @@ public class BVH
 			{
 				for(Block b: blocks)
 				{
-					//temp.set(b.p());
-					//b.body.transformB2W(temp);//-->world
 					if (unpinnedBody.intersectsBlock(b))
 						if(!ir.candidateBlocks.contains(b))
 							ir.candidateBlocks.add(b);
+						else
+							System.out.println("Tried to add same block to list of candidates");
 				}
 			}
 			else
@@ -172,7 +173,11 @@ public class BVH
 	public void build(Block[] blocks)
 	{
 		this.blocks = blocks;
-		System.out.println("Building tree again");
 		root = createTree(0, blocks.length);
+	}
+	
+	public void draw(GL2 gl)
+	{
+		root.draw(gl);
 	}
 }
