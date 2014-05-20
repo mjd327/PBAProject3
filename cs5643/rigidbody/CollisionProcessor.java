@@ -140,12 +140,14 @@ public class CollisionProcessor
 					v.scale(force + fDamp);
 					bodyJ.applyContactForceW(pjW, v);
 					v.negate();
+					System.out.println(v.x + ", " + v.y);
 					bodyI.applyContactForceW(piW, v);
 				}
 			}
 		}
 		return collided;
 	}
+	
 	void broadPhaseAABB()
 	{
 		IntersectionRecord ir = new IntersectionRecord();
@@ -178,8 +180,8 @@ public class CollisionProcessor
 		Point2d  piW = new Point2d();
 		Point2d  pjW = new Point2d();
 		Vector2d v   = new Vector2d();
-		for(Block bi : blocksUnpinned) {
-
+		for(Block bi : blocksUnpinned)
+		{
 			piW.set(bi.p());//body coords
 			unpinnedBody.transformB2W(piW);//-->world
 
@@ -198,7 +200,7 @@ public class CollisionProcessor
 				v.normalize();
 
 				/// PENALTY CONTACT FORCE:
-				double k     = Constants.CONTACT_STIFFNESS * massEff;
+				double k = Constants.CONTACT_STIFFNESS * massEff;
 				double force =  k * penDepth;
 
 				/// DAMPING: 
@@ -207,8 +209,10 @@ public class CollisionProcessor
 				double fDamp = + 0.004 * k * (vi - vj);
 
 				v.scale(force + fDamp);
+
 				b.body.applyContactForceW(pjW, v);
 				v.negate();
+				System.out.println(v.x + ", " + v.y);
 				unpinnedBody.applyContactForceW(piW, v);
 
 			}

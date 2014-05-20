@@ -38,7 +38,7 @@ public class BVHNode {
 
 	public boolean intersects(RigidBody body)
 	{
-		return body.getMinBound().x < maxBound.x && body.getMaxBound().x > minBound.x
-			&& body.getMinBound().y < maxBound.y && body.getMaxBound().y > minBound.y;
+		return body.getMinBound().x <= maxBound.x && body.getMaxBound().x >= minBound.x
+			&& body.getMinBound().y <= maxBound.y && body.getMaxBound().y >= minBound.y;
 	}
 }

@@ -179,7 +179,9 @@ public class RigidBodySystem
     	copy.theta = r.theta; 
     	copy.torque = r.torque; 
     	copy.transformB2W.set(r.transformB2W); 
-    	copy.transformW2B.set(r.transformW2B) ; 
+    	copy.transformW2B.set(r.transformW2B);
+    	copy.minBound = r.minBound;
+    	copy.maxBound = r.maxBound;
     }
     /**Generates paths for a passed in stochastic. Takes double arguments for when paths must be restricted. In this case,
      * because the stochastic is being replaced, it needs the values from the old one 
@@ -274,6 +276,7 @@ public class RigidBodySystem
 	/**Used to compute the first step of the simulation. Currently it just simulates the object normally.*/ 
     public synchronized boolean initialSimulation(double dt)
     {
+    	/*
     	if (bvh == null)
     	{
     		int blockArraySize = 0;
@@ -298,6 +301,32 @@ public class RigidBodySystem
     		bvh = new BVH();
     		bvh.build(blocks);
     	}
+    	*/
+    	if (bvh == null)
+    	{
+    		int blockArraySize = 0;
+    		int i, k;
+    		for(RigidBody b: bodies)
+    		{
+    			blockArraySize += b.getNBlocks();
+    		}
+    		
+    		Block[] blocks = new Block[blockArraySize];
+    		i = 0;
+    		Collection<Block> temp;
+    		for(RigidBody body: bodies)
+    		{
+    			temp = body.getBlocks();
+    			for(Block b: temp)
+    			{
+    				blocks[i] = b;
+    				i++;
+    			}
+    		}    		
+    		bvh = new BVH();
+    		bvh.build(blocks);
+    	}
+    	
     	
     	boolean collided = false; 
     	{/// Gather forces: (TODO)

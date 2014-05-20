@@ -30,10 +30,11 @@ public class BVH
 			{
 				for(Block b: blocks)
 				{
-					temp.set(b.p());
-					b.body.transformB2W(temp);//-->world
-					if (unpinnedBody.intersectsW(temp))
-						ir.candidateBlocks.add(b);
+					//temp.set(b.p());
+					//b.body.transformB2W(temp);//-->world
+					if (unpinnedBody.intersectsBlock(b))
+						if(!ir.candidateBlocks.contains(b))
+							ir.candidateBlocks.add(b);
 				}
 			}
 			else
@@ -62,7 +63,9 @@ public class BVH
 		int widestDim;  //Widest dimension of box enclosing all blocks
 		Point2d aveAveragePosition = new Point2d(0,0); //The average of the average positions
 		
-		Point2d tempLoc;
+		Point2d tempLocmax = new Point2d();
+		Point2d tempLocmin = new Point2d();
+		Point2d tempLoc = new Point2d();
 		
 		// ==== Step 1 ====
 		// Find out the BIG bounding box enclosing all the bodies in the range [start, end)
@@ -73,13 +76,18 @@ public class BVH
 		//Go through all blocks in range, and find min and max values of x,y,and z
 		for (int i = start;  i < end; i++)
 		{
-			tempLoc = new Point2d(blocks[i].p());
+			tempLoc.set(blocks[i].p.x, blocks[i].p.y);
+			tempLocmax.set(blocks[i].p.x + blocks[i].h, blocks[i].p.y + blocks[i].h);
+			tempLocmin.set(blocks[i].p.x - blocks[i].h, blocks[i].p.y - blocks[i].h);
 			blocks[i].body.transformB2W(tempLoc);//-->world
-			if(tempLoc.x < minB.x) minB.x = tempLoc.x; 
-			if(tempLoc.y < minB.y) minB.y = tempLoc.y; 
+			blocks[i].body.transformB2W(tempLocmin);//-->world
+			blocks[i].body.transformB2W(tempLocmax);//-->world
 			
-			if(tempLoc.x > maxB.x) maxB.x = tempLoc.x; 
-			if(tempLoc.x > maxB.y) maxB.y = tempLoc.y; 
+			if(tempLocmin.x < minB.x) minB.x = tempLocmin.x; 
+			if(tempLocmin.y < minB.y) minB.y = tempLocmin.y; 
+			
+			if(tempLocmax.x > maxB.x) maxB.x = tempLocmax.x; 
+			if(tempLocmax.x > maxB.y) maxB.y = tempLocmax.y; 
 			
 			//Compute sum of average positions to be used later
 			aveAveragePosition.add(tempLoc);	
@@ -157,9 +165,7 @@ public class BVH
 		// ==== Step 5 ====
 		// Recursively create left and right children.
 		// As stated above, left counter is at start of right child, right counter at end of left child
-		
-		//System.out.println("Left Child: [" + start + ", " + leftCounter + ")");
-		//System.out.println("Right Child: [" + leftCounter + ", " + end + ")");
+
 		
 		return new BVHNode(minB,maxB,createTree(start,leftCounter),createTree(leftCounter,end),start,end);				
 	}	

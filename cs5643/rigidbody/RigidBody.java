@@ -65,8 +65,8 @@ public class RigidBody
 	RigidTransform transformW2B = new RigidTransform();
 	
 	Point2d averagePosition;
-	Point2d minBound;
-	Point2d maxBound;
+	Point2d minBound = new Point2d();
+	Point2d maxBound = new Point2d();
 
 	/** 
 	 * Constructs rigid body as the union of specified blocks.
@@ -196,6 +196,17 @@ public class RigidBody
 		Point2d pointB = new Point2d(pointW);//sloth
 		transformW2B.transform(pointB);
 		return boundingDisk.intersects(pointB);
+	}
+	
+	public boolean intersectsBlock(Block b)
+	{
+		Point2d tempmin, tempmax;
+		tempmax = new Point2d(b.p.x + b.h, b.p.y + b.h);
+		tempmin = new Point2d(b.p.x - b.h, b.p.y - b.h);
+		b.body.transformB2W(tempmin);
+		b.body.transformB2W(tempmax);
+		return getMinBound().x <= tempmax.x && getMaxBound().x >= tempmin.x
+				&& getMinBound().y <= tempmax.y && getMaxBound().y >= tempmin.y;
 	}
 
 	/** Number of image blocks comprising this rigid body. */
@@ -364,7 +375,21 @@ public class RigidBody
 
 		/// UPDATE transformB2W & transformW2B & AABB:
 		updateRigidTransforms();
-		//TODO updateAABB();
+		
+		minBound.set(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+		maxBound.set(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
+		Point2d blockPos = new Point2d();
+		for(Block b : B)
+		{
+			blockPos.set(b.p());
+			transformB2W(blockPos);
+
+			if (blockPos.x < minBound.x) minBound.x = blockPos.x;
+			if (blockPos.y < minBound.y) minBound.y = blockPos.y;
+
+			if (blockPos.x > maxBound.x) maxBound.x = blockPos.x;
+			if (blockPos.y > maxBound.y) maxBound.y = blockPos.y;
+		}
 	}
 
 	/** Refreshes transformB2W and transformW2B using current
@@ -384,11 +409,6 @@ public class RigidBody
 	public void transformB2W(Tuple2d x)
 	{
 		transformB2W.transform(x);
-	}
-	/**Refreshes AABB using current position/orientation*/
-	public void updateAABB()
-	{
-		//TODO: do stuff
 	}
 	
 	/** Advances body state, integrating any accumulated force/torque
@@ -411,14 +431,13 @@ public class RigidBody
 			}
 			/// UPDATE RigidTransforms:
 			updateRigidTransforms();
-			//TODO updateAABB();
 
 
 			/// RESET FORCE/TORQUE ACCUMULATORS:
 			force.x = force.y = torque = 0;
 
-			minBound = new Point2d(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
-			maxBound = new Point2d(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
+			minBound.set(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
+			maxBound.set(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY);
 			Point2d blockPos = new Point2d();
 			for(Block b : B)
 			{
