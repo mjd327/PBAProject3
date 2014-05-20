@@ -27,6 +27,8 @@ public class Block
     /** Halfwidth of block (Note: the block radius is sqrt(2)*h). */
     double  h;
 
+    /** Body this block belongs too */
+    RigidBody body;
     /**
      * Constructs a Block.
      */
@@ -60,6 +62,8 @@ public class Block
 	if(m > 1) m = 1;
 	return m;
     }
+    
+    public void setBody(RigidBody body) { this.body = body; }
 
     /** Draws Block geometry (using current color/lighting). */
     public void display(GL2 gl) 
