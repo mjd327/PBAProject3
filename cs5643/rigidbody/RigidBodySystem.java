@@ -285,7 +285,8 @@ public class RigidBodySystem
     		int i;
     		for(RigidBody b: bodies)
     		{
-    			blockArraySize += b.getNBoundaryBlocks();
+    			if(b.isPinned())
+    				blockArraySize += b.getNBoundaryBlocks();
     		}
     		
     		Block[] blocks = new Block[blockArraySize];
@@ -293,11 +294,14 @@ public class RigidBodySystem
     		Collection<Block> temp;
     		for(RigidBody body: bodies)
     		{
+    			if(body.isPinned())
+    			{
     			temp = body.getBoundaryBlocks();
     			for(Block b: temp)
     			{
     				blocks[i] = b;
     				i++;
+    			}
     			}
     		}    		
     		bvh = new BVH();

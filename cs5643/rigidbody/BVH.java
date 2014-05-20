@@ -182,6 +182,6 @@ public class BVH
 	
 	public void draw(GL2 gl)
 	{
-		//root.draw(gl, 0);
+		root.draw(gl, 0);
 	}
 }
